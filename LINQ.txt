@@ -1,0 +1,54 @@
+<!--------Joining tables with null values LINQ-------------->
+
+  var emps = (from m in db.Employees
+                            select m).ToList();
+
+                var worklocs = (from m in db.WorkLocations
+                                select m).ToList();
+
+                var designation = (from m in db.SystemDataTypes
+                                   select m).ToList();
+
+                var department = (from m in db.Departments
+                                  select m).ToList();
+
+                var totalemp = (from m in emps
+                                join x in worklocs on m.WorkLocationID equals x.WorkLocationID
+                                where x.LocationType == "Shop"
+                                select m.EmployeeID).Count();
+
+                var data = (from m in emps
+                            join x in worklocs on m.WorkLocationID equals (int?)x.WorkLocationID into output
+                            from worklist in output.DefaultIfEmpty()
+
+                            join y in department on m.DepartmentID equals (int?)y.DepartmentID into output1
+                            from deptlist in output1.DefaultIfEmpty()
+                            join z in designation on m.DesignationID equals (int?)z.ID into output2
+                            from desiglist in output2.DefaultIfEmpty()
+                            join c in designation on m.StatusID equals (int?)c.ID into output3                                                        
+                            from desiglist2 in output3.DefaultIfEmpty()
+                            //where (worklist.WorkLocationName.DefaultIfEmpty() == null || worklist.WorkLocationName.DefaultIfEmpty() != null) && (deptlist.DepartmentName.DefaultIfEmpty() == null || deptlist.DepartmentName.DefaultIfEmpty() != null) && (desiglist2.Name.DefaultIfEmpty() == null || desiglist2.Name.DefaultIfEmpty() != null) && (desiglist.Name.DefaultIfEmpty() == null || desiglist.Name.DefaultIfEmpty() != null)
+                            //where (m.DepartmentID != null) && (m.DesignationID != null) && (m.StatusID != null) && (m.WorkLocationID != null)
+                            //where worklist.LocationType == "Shops"
+                            orderby m.DepartmentID , m.WorkLocationID
+                            select new
+                            {
+                                m.EmployeeID,
+                                EmpName = m.Firstname + " " + m.Lastname,
+                                EmployeeCode = (m != null ? m.EmployeeCode:"-"),
+                                StaffNo = (m != null ?  m.StaffNo:string.Empty  ),
+                                DepartmentName = (deptlist != null ? deptlist.DepartmentName:string.Empty),
+                                WorkLocationName = (worklist != null ? worklist.WorkLocationName:string.Empty  ),
+                                Name = (desiglist != null ?  desiglist.Name: string.Empty),
+                                Status = (desiglist2 != null ? desiglist2.Name:string.Empty)
+                            }).ToList();
+
+<!------------------------------------------------------>
+
+
+
+
+
+
+
+
